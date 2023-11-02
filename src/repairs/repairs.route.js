@@ -1,11 +1,22 @@
 import express from 'express';
 import { validatePendingServiceExistence } from '../middlewares/repairMiddleware.js';
-import { createRepairs, deleteRepairs, getRepairById, getRepairs, updateRepairsStatus } from './repairs.controller.js';
+import {
+    createRepairs,
+    deleteRepairs,
+    getRepairById,
+    getRepairs,
+    updateRepairsStatus,
+    getPendingRepairs,
+    getCompletedRepairs
+} from './repairs.controller.js';
+import catchAsync from '../utils/catchAsync'; // Importa catchAsync desde tu archivo de utilidades
 
 export const router = express.Router();
 
-router.get("/", getRepairs);            // Obtener la lista de motos pendientes (pending) de reparar
-router.get("/:id", validatePendingServiceExistence, getRepairById);       // Obtener una moto pendiente de reparar por su id
-router.post("/", createRepairs);        // Crear una cita
-router.patch("/:id", validatePendingServiceExistence, updateRepairsStatus); // Actualizar el status de una reparación a completado
-router.delete("/:id", validatePendingServiceExistence, deleteRepairs);    // Cancelar la reparación de un usuario
+router.get('/', catchAsync(getRepairs));
+router.get('/:id', validatePendingServiceExistence, catchAsync(getRepairById));
+router.post('/', catchAsync(createRepairs));
+router.patch('/:id', validatePendingServiceExistence, catchAsync(updateRepairsStatus));
+router.delete('/:id', validatePendingServiceExistence, catchAsync(deleteRepairs));
+router.get('/pending', catchAsync(getPendingRepairs));
+router.get('/completed', catchAsync(getCompletedRepairs));

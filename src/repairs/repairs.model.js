@@ -19,13 +19,17 @@ const Repairs = sequelize.define('Repairs', {
     userId: {
         type: DataTypes.INTEGER,
         references: {
-            model: 'Users', // Asegura que se refiera a la tabla Users
+            model: Users, // Utiliza la instancia del modelo Users
             key: 'id'
         }
+    },
+    // Agrega la columna deletedAt para el "soft delete"
+    deletedAt: {
+        type: DataTypes.DATE,
+        allowNull: true,
     }
 });
 
-Repairs.belongsTo(Users, { foreignKey: 'userId' }); // Repairs pertenece a Users
-
+Repairs.belongsTo(Users, { foreignKey: 'userId' });
 
 export default Repairs;

@@ -26,9 +26,13 @@ const Users = sequelize.define('Users', {
         type: DataTypes.STRING,
         defaultValue: 'client'
     },
+    // Agrega la columna deletedAt para el "soft delete"
+    deletedAt: {
+        type: DataTypes.DATE,
+        allowNull: true,
+    }
 });
 
-Users.hasMany(Repairs, { foreignKey: 'userId' }); // Users tiene muchas Repairs
-
+Users.hasMany(Repairs, { foreignKey: 'userId' });
 
 export default Users;

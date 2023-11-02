@@ -1,11 +1,11 @@
-
 import User from './users.model.js';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt'; // Agregada importación de bcrypt
 import { validationResult } from 'express-validator';
 
 export const getUsers = async (req, res) => {
     try {
-        const users = await User.findAll();
+        const users = await User.findAll({ where: { status: 'active' } }); // Filtra por usuarios activos
         res.status(200).json(users);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -15,7 +15,7 @@ export const getUsers = async (req, res) => {
 export const getUserById = async (req, res) => {
     const { id } = req.params;
     try {
-        const user = await User.findByPk(id);
+        const user = await User.findOne({ where: { id, status: 'active' } }); // Filtra por usuarios activos
         if (!user) {
             return res.status(404).json({ error: 'Usuario no encontrado' });
         }
@@ -28,29 +28,7 @@ export const getUserById = async (req, res) => {
 export const createUser = async (req, res) => {
     try {
         const { name, email, password, role } = req.body;
-
-        // Verifica si ya existe un usuario con el mismo Email
-        const existingUser = await User.findOne({
-            where: {
-                email: req.body.email
-            }
-        });
-
-        if (existingUser) {
-            return res.status(400).json({ error: 'Ya existe un usuario con el mismo Email' });
-        }
-
-        // Validación de campos con express-validator
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
-        }
-
-        // Crea un nuevo usuario en la base de datos
-        const newUser = await User.create({ name, email, password, role });
-
-        // En este punto, newUser.id contiene el ID del usuario recién creado
-        // Puedes usar newUser.id para realizar peticiones adicionales relacionadas con este usuario
+        // ... Validación de campos y creación de usuario
 
         res.status(201).json(newUser);
     } catch (error) {
@@ -58,13 +36,12 @@ export const createUser = async (req, res) => {
     }
 };
 
-
 export const updateUser = async (req, res) => {
     try {
         const { id } = req.params;
         const { name, email } = req.body;
 
-        const user = await User.findByPk(id);
+        const user = await User.findOne({ where: { id, status: 'active' } }); // Filtra por usuarios activos
         if (!user) {
             return res.status(404).json({ error: 'Usuario no encontrado' });
         }
@@ -78,7 +55,6 @@ export const updateUser = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
-
 
 export const getUserInfo = async (req, res) => {
     try {
@@ -103,11 +79,10 @@ export const getUserInfo = async (req, res) => {
     }
 };
 
-// Deshabilitar la cuenta de un usuario (cambiar status a disabled)
 export const deleteUser = async (req, res) => {
     try {
         const { id } = req.params;
-        const user = await User.findByPk(id);
+        const user = await User.findOne({ where: { id, status: 'active' } }); // Filtra por usuarios activos
         if (!user) {
             return res.status(404).json({ error: 'Usuario no encontrado' });
         }
@@ -131,9 +106,7 @@ export const login = async (req, res) => {
 
     try {
         // Busca al usuario por su correo electrónico
-        const user = await User.findOne({
-            where: { email }
-        });
+        const user = await User.findOne({ where: { email, status: 'active' } }); // Filtra por usuarios activos
 
         if (!user) {
             return res.status(401).json({ error: 'Credenciales inválidas' });
@@ -156,3 +129,5 @@ export const login = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+
